@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rubber Compounding Machinery - Cross-Section Interactive Simulation</title>
+  <!-- Google Fonts & FontAwesome -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --bg-card: #1e293b;
+      --bg-card-border: #334155;
+      --accent-blue: #0284c7;
+      --accent-cyan: #06b6d4;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-green: #10b981;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --panel-bg: rgba(15, 23, 42, 0.85);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* TOP HEADER NAVBAR */
+    header {
+      background: rgba(30, 41, 59, 0.9);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--bg-card-border);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #fff;
+      box-shadow: 0 0 12px rgba(2, 132, 199, 0.4);
+    }
+
+    .brand-text h1 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-text p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .view-selector {
+      display: flex;
+      background: #0f172a;
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--bg-card-border);
+      gap: 4px;
+    }
+
+    .view-btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .view-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .view-btn.active {
+      background: var(--accent-blue);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .preset-btn {
+      padding: 6px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      color: var(--text-main);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .preset-btn:hover {
+      border-color: var(--accent-cyan);
+    }
+
+    .fullscreen-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    .fullscreen-btn:hover {
+      color: var(--text-main);
+    }
+
+    /* MAIN CONTENT LAYOUT */
+    .app-container {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 320px 1fr 340px;
+      gap: 12px;
+      padding: 12px;
+      height: calc(100vh - 61px);
+      overflow: hidden;
+    }
+
+    /* CONTROL PANELS */
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    .panel::-webkit-scrollbar {
+      width: 6px;
+    }
+    .panel::-webkit-scrollbar-thumb {
+      background: var(--bg-card-border);
+      border-radius: 3px;
+    }
+
+    .panel-title {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent-cyan);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--bg-card-border);
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .control-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .control-value {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent-cyan);
+    }
+
+    .slider {
+      width: 100%;
+      height: 6px;
+      background: #0f172a;
+      border-radius: 3px;
+      outline: none;
+      appearance: none;
+      accent-color: var(--accent-blue);
+      cursor: pointer;
+    }
+
+    .radio-tiles {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .radio-tile {
+      border: 1px solid var(--bg-card-border);
+      background: #0f172a;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .radio-tile:hover {
+      border-color: var(--accent-blue);
+    }
+
+    .radio-tile.active {
+      border-color: var(--accent-cyan);
+      background: rgba(6, 182, 212, 0.1);
+    }
+
+    .radio-tile-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .radio-tile-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* SIMULATION CANVAS AREA */
+    .viewport-container {
+      background: #070a12;
+      border: 1px solid var(--bg-card-border);
+      border-radius: 12px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .viewport-overlay {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      background: var(--panel-bg);
+      backdrop-filter: blur(8px);
+      padding: 12px 18px;
+      border-radius: 10px;
+      border: 1px solid var(--bg-card-border);
+      pointer-events: none;
+    }
+
+    .viewport-overlay h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .viewport-overlay p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .canvas-legend {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      background: var(--panel-bg);
+      backdrop-filter: blur(8px);
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--bg-card-border);
+      display: flex;
+      gap: 16px;
+      font-size: 11px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+
+    .play-controls {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      display: flex;
+      gap: 8px;
+      background: var(--panel-bg);
+      padding: 6px;
+      border-radius: 8px;
+      border: 1px solid var(--bg-card-border);
+    }
+
+    .play-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      border: none;
+      background: var(--accent-blue);
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .play-btn:hover {
+      background: #0369a1;
+    }
+
+    /* TELEMETRY & ANALYTICS PANEL */
+    .metric-card {
+      background: #0f172a;
+      border: 1px solid var(--bg-card-border);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .metric-header {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .metric-value-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .metric-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .metric-unit {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 6px;
+      background: #1e293b;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 60%;
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+
+    .info-box {
+      background: rgba(2, 132, 199, 0.1);
+      border-left: 3px solid var(--accent-blue);
+      padding: 10px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #e2e8f0;
+    }
+
+    .info-box strong {
+      color: var(--accent-cyan);
+    }
+
+    .zone-indicator-bar {
+      display: flex;
+      gap: 4px;
+      margin-top: 8px;
+    }
+
+    .zone-badge {
+      flex: 1;
+      text-align: center;
+      padding: 6px 2px;
+      background: #0f172a;
+      border: 1px solid var(--bg-card-border);
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .zone-badge.active {
+      border-color: var(--accent-amber);
+      color: var(--accent-amber);
+      background: rgba(245, 158, 11, 0.1);
+    }
+
+    /* PPT EMBED BANNER */
+    .ppt-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 6px;
+      background: #0f172a;
+      border-radius: 6px;
+      border: 1px dashed var(--bg-card-border);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP HEADER -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon"><i class="fa-solid fa-gears"></i></div>
+      <div class="brand-text">
+        <h1>Rubber Compounding Machine Simulation</h1>
+        <p>Real-Time Internal Cross-Section Mechanics</p>
+      </div>
+    </div>
+
+    <div class="view-selector">
+      <button class="view-btn active" id="btnExtruderLong" onclick="switchView('extruder-long')">
+        <i class="fa-solid fa-water"></i> Twin-Screw Extruder (Side)
+      </button>
+      <button class="view-btn" id="btnExtruderCross" onclick="switchView('extruder-cross')">
+        <i class="fa-solid fa-arrows-to-dot"></i> Screw Barrel Cutaway
+      </button>
+      <button class="view-btn" id="btnBanbury" onclick="switchView('banbury')">
+        <i class="fa-solid fa-blender"></i> Banbury Mixer
+      </button>
+      <button class="view-btn" id="btnMill" onclick="switchView('mill')">
+        <i class="fa-solid fa-scroll"></i> Two-Roll Mill
+      </button>
+    </div>
+
+    <div class="header-actions">
+      <button class="preset-btn" onclick="loadPreset('NR')"><i class="fa-solid fa-leaf"></i> NR Mode</button>
+      <button class="preset-btn" onclick="loadPreset('SBR')"><i class="fa-solid fa-flask"></i> SBR Mode</button>
+      <button class="fullscreen-btn" onclick="toggleFullScreen()" title="Full Screen Presentation Mode">
+        <i class="fa-solid fa-expand"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- APP CONTAINER -->
+  <div class="app-container">
+
+    <!-- LEFT PANEL: MACHINE CONTROLS -->
+    <div class="panel">
+      <div class="panel-title">
+        <span><i class="fa-solid fa-sliders"></i> Parameters</span>
+        <i class="fa-solid fa-circle-info" style="font-size:12px; opacity:0.6;"></i>
+      </div>
+
+      <!-- Rubber Type Selector -->
+      <div class="control-group">
+        <div class="control-label">Elastomer Polymer Type</div>
+        <div class="radio-tiles">
+          <div class="radio-tile active" id="tileNR" onclick="setRubberType('NR')">
+            <div class="radio-tile-title">Natural (NR)</div>
+            <div class="radio-tile-sub">High Mastication</div>
+          </div>
+          <div class="radio-tile" id="tileSBR" onclick="setRubberType('SBR')">
+            <div class="radio-tile-title">Synthetic (SBR)</div>
+            <div class="radio-tile-sub">High Filler Loading</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Motor Speed / RPM -->
+      <div class="control-group">
+        <div class="control-label">
+          <span>Screw / Rotor RPM</span>
+          <span class="control-value" id="valRPM">180 RPM</span>
+        </div>
+        <input type="range" class="slider" id="sliderRPM" min="20" max="400" value="180" oninput="updateControl('rpm', this.value)">
+      </div>
+
+      <!-- Feed Rate -->
+      <div class="control-group">
+        <div class="control-label">
+          <span>Polymer & Filler Feed Rate</span>
+          <span class="control-value" id="valFeed">250 kg/h</span>
+        </div>
+        <input type="range" class="slider" id="sliderFeed" min="50" max="600" value="250" oninput="updateControl('feed', this.value)">
+      </div>
+
+      <!-- Barrel Temperature Profile -->
+      <div class="control-group">
+        <div class="control-label">
+          <span>Barrel Heating Temp</span>
+          <span class="control-value" id="valTemp">135 °C</span>
+        </div>
+        <input type="range" class="slider" id="sliderTemp" min="60" max="220" value="135" oninput="updateControl('temp', this.value)">
+      </div>
+
+      <!-- Carbon Black Content (phr) -->
+      <div class="control-group">
+        <div class="control-label">
+          <span>Carbon Black Filler</span>
+          <span class="control-value" id="valFiller">50 phr</span>
+        </div>
+        <input type="range" class="slider" id="sliderFiller" min="10" max="100" value="50" oninput="updateControl('filler', this.value)">
+      </div>
+
+      <!-- Ram Pressure (for Banbury) -->
+      <div class="control-group" id="grpRam" style="display:none;">
+        <div class="control-label">
+          <span>Pneumatic Ram Pressure</span>
+          <span class="control-value" id="valRam">5.5 bar</span>
+        </div>
+        <input type="range" class="slider" id="sliderRam" min="1" max="10" step="0.1" value="5.5" oninput="updateControl('ram', this.value)">
+      </div>
+
+      <div class="info-box" id="processInfoBox">
+        <strong>Process Mechanics:</strong> Co-rotating twin screws provide self-wiping intermeshing action, generating intense shear field inside kneading blocks to break down polymer chains and disperse carbon black.
+      </div>
+
+      <div class="ppt-hint">
+        <i class="fa-solid fa-file-powerpoint" style="color:var(--accent-amber); margin-right:4px;"></i> Press <strong>F11</strong> or click Expand for PowerPoint full screen.
+      </div>
+    </div>
+
+    <!-- CENTER: SIMULATION CANVAS VIEWPORT -->
+    <div class="viewport-container">
+      <div class="viewport-overlay">
+        <h2 id="viewTitle">Twin-Screw Extruder (Longitudinal Cross-Section)</h2>
+        <p id="viewSubtitle">Co-rotating intermeshing screws with modular kneading and degassing zones</p>
+      </div>
+
+      <canvas id="simCanvas"></canvas>
+
+      <!-- LEGEND -->
+      <div class="canvas-legend">
+        <div class="legend-item">
+          <div class="legend-color" style="background:#eab308;"></div>
+          <span>Raw Polymer</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background:#1e293b; border:1px solid #64748b;"></div>
+          <span>Carbon Black</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background:#22c55e;"></div>
+          <span>Sulfur / Curatives</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background:#0284c7;"></div>
+          <span>Compounded Sheet/Extrudate</span>
+        </div>
+      </div>
+
+      <!-- PLAY / PAUSE HUD -->
+      <div class="play-controls">
+        <button class="play-btn" id="btnPlay" onclick="togglePlay()"><i class="fa-solid fa-pause"></i></button>
+        <button class="play-btn" style="background:#334155;" onclick="resetSim()"><i class="fa-solid fa-rotate-right"></i></button>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL: TELEMETRY & ZONE PROFILES -->
+    <div class="panel">
+      <div class="panel-title">
+        <span><i class="fa-solid fa-chart-line"></i> Real-Time Telemetry</span>
+      </div>
+
+      <!-- Specific Energy Consumption -->
+      <div class="metric-card">
+        <div class="metric-header">Melt Pressure at Die</div>
+        <div class="metric-value-row">
+          <span class="metric-number" id="meterPressure">14.2</span>
+          <span class="metric-unit">MPa</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="barPressure" style="width: 65%;"></div>
+        </div>
+      </div>
+
+      <!-- Motor Shear Stress / Torque -->
+      <div class="metric-card">
+        <div class="metric-header">Motor Torque Load</div>
+        <div class="metric-value-row">
+          <span class="metric-number" id="meterTorque">78.5</span>
+          <span class="metric-unit">%</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="barTorque" style="width: 78%; background: linear-gradient(90deg, var(--accent-amber), var(--accent-red));"></div>
+        </div>
+      </div>
+
+      <!-- Dispersion Index -->
+      <div class="metric-card">
+        <div class="metric-header">Carbon Black Dispersion Quality</div>
+        <div class="metric-value-row">
+          <span class="metric-number" id="meterDispersion">96.4</span>
+          <span class="metric-unit">%</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="barDispersion" style="width: 96%; background: var(--accent-green);"></div>
+        </div>
+      </div>
+
+      <!-- Viscosity & Chain Scission -->
+      <div class="metric-card">
+        <div class="metric-header">Compound Temperature</div>
+        <div class="metric-value-row">
+          <span class="metric-number" id="meterMeltTemp">142</span>
+          <span class="metric-unit">°C</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="barMeltTemp" style="width: 70%;"></div>
+        </div>
+      </div>
+
+      <!-- Extruder Barrel Zones Status -->
+      <div class="control-group">
+        <div class="control-label">Twin-Screw Barrel Zone Temps</div>
+        <div class="zone-indicator-bar">
+          <div class="zone-badge" id="z1">Z1<br>80°</div>
+          <div class="zone-badge" id="z2">Z2<br>120°</div>
+          <div class="zone-badge active" id="z3">Z3<br>145°</div>
+          <div class="zone-badge" id="z4">Z4<br>135°</div>
+          <div class="zone-badge" id="z5">Z5<br>125°</div>
+        </div>
+      </div>
+
+      <div class="info-box" style="background: rgba(16, 185, 129, 0.1); border-color: var(--accent-green);">
+        <strong>Natural vs Synthetic Behavior:</strong>
+        <p id="compoundingDifferenceText" style="margin-top:4px;">Natural Rubber requires mechanical chain scission (mastication) in Zone 1-2 to drop Mooney Viscosity before filler incorporation. SBR skips mastication but needs higher torque shear for particle wetting.</p>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    // --- APP STATE & CONSTANTS ---
+    let simState = {
+      view: 'extruder-long', // 'extruder-long', 'extruder-cross', 'banbury', 'mill'
+      rubberType: 'NR', // 'NR' or 'SBR'
+      rpm: 180,
+      feed: 250,
+      temp: 135,
+      filler: 50,
+      ram: 5.5,
+      running: true,
+      time: 0,
+      particles: []
+    };
+
+    const canvas = document.getElementById('simCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Handle Resize
+    function resizeCanvas() {
+      const container = canvas.parentElement;
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // --- INITIALIZE PARTICLES FOR FLOW SIMULATION ---
+    function initParticles() {
+      simState.particles = [];
+      const count = 160;
+      for (let i = 0; i < count; i++) {
+        simState.particles.push({
+          x: Math.random(),
+          y: Math.random(),
+          size: 2 + Math.random() * 4,
+          type: Math.random() > 0.4 ? 'filler' : (Math.random() > 0.5 ? 'polymer' : 'curative'),
+          vx: 0,
+          vy: 0,
+          mixLevel: 0
+        });
+      }
+    }
+    initParticles();
+
+    // --- CONTROLS & EVENT HANDLERS ---
+    function switchView(viewName) {
+      simState.view = viewName;
+      document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+      
+      const titles = {
+        'extruder-long': {
+          title: 'Twin-Screw Extruder (Side Cross-Section)',
+          sub: 'Co-rotating intermeshing screws showing feeding, kneading, degassing, and metering zones'
+        },
+        'extruder-cross': {
+          title: 'Screw Barrel Transverse Cutaway',
+          sub: 'Self-wiping figure-8 geometry & high-shear nip gap mechanics'
+        },
+        'banbury': {
+          title: 'Banbury Internal Mixer Cross-Section',
+          sub: 'Heavy-duty chamber with tangential 2-wing rotors and pneumatic forcing ram'
+        },
+        'mill': {
+          title: 'Two-Roll Open Mixing Mill',
+          sub: 'Differential speed counter-rotating rolls with rolling bank shear'
+        }
+      };
+
+      document.getElementById('viewTitle').innerText = titles[viewName].title;
+      document.getElementById('viewSubtitle').innerText = titles[viewName].sub;
+
+      if (viewName === 'extruder-long') document.getElementById('btnExtruderLong').classList.add('active');
+      if (viewName === 'extruder-cross') document.getElementById('btnExtruderCross').classList.add('active');
+      if (viewName === 'banbury') document.getElementById('btnBanbury').classList.add('active');
+      if (viewName === 'mill') document.getElementById('btnMill').classList.add('active');
+
+      document.getElementById('grpRam').style.display = (viewName === 'banbury') ? 'flex' : 'none';
+      updateProcessInfoText();
+    }
+
+    function setRubberType(type) {
+      simState.rubberType = type;
+      document.getElementById('tileNR').classList.toggle('active', type === 'NR');
+      document.getElementById('tileSBR').classList.toggle('active', type === 'SBR');
+      
+      if (type === 'NR') {
+        simState.temp = 125;
+        document.getElementById('sliderTemp').value = 125;
+      } else {
+        simState.temp = 150;
+        document.getElementById('sliderTemp').value = 150;
+      }
+      updateControl('temp', simState.temp);
+      updateProcessInfoText();
+    }
+
+    function updateControl(key, val) {
+      simState[key] = parseFloat(val);
+      if (key === 'rpm') document.getElementById('valRPM').innerText = val + ' RPM';
+      if (key === 'feed') document.getElementById('valFeed').innerText = val + ' kg/h';
+      if (key === 'temp') document.getElementById('valTemp').innerText = val + ' °C';
+      if (key === 'filler') document.getElementById('valFiller').innerText = val + ' phr';
+      if (key === 'ram') document.getElementById('valRam').innerText = val + ' bar';
+    }
+
+    function updateProcessInfoText() {
+      const box = document.getElementById('processInfoBox');
+      const diffBox = document.getElementById('compoundingDifferenceText');
+
+      if (simState.view.startsWith('extruder')) {
+        box.innerHTML = '<strong>Twin-Screw Mechanism:</strong> Co-rotating modular screw elements generate high elongation and shear fields. Barrel zones control thermal history to prevent premature curing (scorch).';
+      } else if (simState.view === 'banbury') {
+        box.innerHTML = '<strong>Banbury Mechanism:</strong> Pneumatic ram forces high-viscosity rubber into rotor tip gap. Rapid distributive and dispersive mixing occurs inside sealed chamber.';
+      } else {
+        box.innerHTML = '<strong>Two-Roll Mill:</strong> Differential speed ratio (e.g. 1:1.25) draws rubber into nip gap, creating high shear stress to form a smooth continuous sheet on front roll.';
+      }
+
+      if (simState.rubberType === 'NR') {
+        diffBox.innerText = 'Natural Rubber requires mechanical chain scission (mastication) in early zones to reduce Mooney Viscosity before filler incorporation. Highly temperature-sensitive.';
+      } else {
+        diffBox.innerText = 'Synthetic Rubber (SBR) skips heavy mastication but requires high filler loadings (carbon black/silica) and intensive dispersion for tensile reinforcement.';
+      }
+    }
+
+    function loadPreset(type) {
+      setRubberType(type);
+      if (type === 'NR') {
+        updateControl('rpm', 160);
+        document.getElementById('sliderRPM').value = 160;
+        updateControl('filler', 45);
+        document.getElementById('sliderFiller').value = 45;
+      } else {
+        updateControl('rpm', 240);
+        document.getElementById('sliderRPM').value = 240;
+        updateControl('filler', 65);
+        document.getElementById('sliderFiller').value = 65;
+      }
+    }
+
+    function togglePlay() {
+      simState.running = !simState.running;
+      document.getElementById('btnPlay').innerHTML = simState.running ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
+    }
+
+    function resetSim() {
+      simState.time = 0;
+      initParticles();
+    }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    // --- RENDERERS FOR EACH CROSS-SECTION VIEW ---
+
+    // 1. TWIN-SCREW EXTRUDER (LONGITUDINAL SIDE CUTAWAY)
+    function drawExtruderLongitudinal() {
+      const w = canvas.width;
+      const h = canvas.height;
+      const cx = w / 2;
+      const cy = h / 2 + 10;
+
+      const barrelWidth = w * 0.78;
+      const barrelHeight = 110;
+      const startX = cx - barrelWidth / 2;
+
+      // Draw Main Machine Frame / Motor Box (like USEON Image)
+      ctx.fillStyle = '#0284c7'; // Machine Blue
+      ctx.fillRect(startX - 120, cy - 70, 100, 140); // Motor
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(startX - 20, cy - 65, 20, 130); // Gearbox flange
+
+      // Motor Label
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 12px Inter';
+      ctx.fillText('MAIN MOTOR', startX - 110, cy + 5);
+
+      // Barrel Outer Wall
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(startX, cy - barrelHeight / 2 - 14, barrelWidth, barrelHeight + 28);
+
+      // Barrel Interior Cavity (Cross-Section Cutaway)
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(startX, cy - barrelHeight / 2, barrelWidth, barrelHeight);
+
+      // Heating Zones (Z1 - Z5)
+      const zoneW = barrelWidth / 5;
+      const zoneNames = ['Z1: Feed', 'Z2: Masticate', 'Z3: Kneading', 'Z4: Vent/Vacuum', 'Z5: Metering'];
+      for (let i = 0; i < 5; i++) {
+        const zx = startX + i * zoneW;
+        ctx.strokeStyle = '#475569';
+        ctx.strokeRect(zx, cy - barrelHeight / 2 - 14, zoneW, 12);
+        
+        // Zone Temp Glow
+        const heatColor = i === 2 ? '#ef4444' : (i === 3 ? '#f59e0b' : '#0284c7');
+        ctx.fillStyle = heatColor;
+        ctx.fillRect(zx + 2, cy - barrelHeight / 2 - 12, zoneW - 4, 8);
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '10px Inter';
+        ctx.fillText(zoneNames[i], zx + 10, cy - barrelHeight / 2 - 20);
+      }
+
+      // Hopper (Feed In)
+      const hopperX = startX + zoneW * 0.4;
+      ctx.fillStyle = '#64748b';
+      ctx.beginPath();
+      ctx.moveTo(hopperX - 30, cy - barrelHeight / 2 - 80);
+      ctx.lineTo(hopperX + 30, cy - barrelHeight / 2 - 80);
+      ctx.lineTo(hopperX + 10, cy - barrelHeight / 2);
+      ctx.lineTo(hopperX - 10, cy - barrelHeight / 2);
+      ctx.closePath();
+      ctx.fill();
+
+      // Venting Chimney (Zone 4)
+      const ventX = startX + zoneW * 3.5;
+      ctx.fillStyle = '#475569';
+      ctx.fillRect(ventX - 15, cy - barrelHeight / 2 - 50, 30, 50);
+
+      // Twin Screw Shafts & Screws
+      const screwR = 24;
+      const t = simState.time * (simState.rpm / 60);
+
+      // Draw Screws (Co-Rotating)
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 3;
+
+      for (let s = -1; s <= 1; s += 2) {
+        const sy = cy + s * 22;
+        // Shaft core
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillRect(startX, sy - 8, barrelWidth, 16);
+
+        // Screw flights
+        const pitch = 35;
+        for (let x = startX; x < startX + barrelWidth; x += pitch) {
+          const zoneIndex = Math.floor((x - startX) / zoneW);
+          const phase = (x / pitch) + t;
+
+          if (zoneIndex === 2) {
+            // Kneading Blocks (Staggered Discs)
+            ctx.fillStyle = '#e2e8f0';
+            const discAngle = phase * 2;
+            ctx.fillRect(x, sy - 20, 12, 40);
+          } else {
+            // Conveying Screw Flights
+            const flightY = Math.sin(phase) * screwR;
+            ctx.beginPath();
+            ctx.fillStyle = '#cbd5e1';
+            ctx.ellipse(x, sy + flightY * 0.5, 6, 22, 0, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+
+      // Material Flow Animation (Pellets -> Melted Rubber -> Homogenous Compound)
+      simState.particles.forEach(p => {
+        const px = startX + p.x * barrelWidth;
+        const py = cy + (p.y - 0.5) * (barrelHeight - 20);
+
+        // Movement Speed linked to Feed Rate & RPM
+        p.x += (0.001 * (simState.rpm / 100) * (simState.feed / 250));
+        if (p.x > 1) p.x = 0.05;
+
+        // Color transition along barrel zones
+        let pColor;
+        if (p.x < 0.2) {
+          pColor = p.type === 'filler' ? '#1e293b' : (p.type === 'curative' ? '#22c55e' : '#eab308');
+        } else if (p.x < 0.6) {
+          pColor = p.type === 'filler' ? '#334155' : '#854d0e';
+        } else {
+          pColor = '#0284c7'; // Blended Rubber Compound
+        }
+
+        ctx.fillStyle = pColor;
+        ctx.beginPath();
+        ctx.arc(px, py, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Extrusion Die & Output Strand
+      const dieX = startX + barrelWidth;
+      ctx.fillStyle = '#0284c7';
+      ctx.fillRect(dieX, cy - 20, 40, 40); // Die Head
+      ctx.fillStyle = '#0369a1';
+      ctx.fillRect(dieX + 40, cy - 8, 80, 16); // Continuous Output Profile
+    }
+
+    // 2. SCREW BARREL CROSS-SECTION (TRANSVERSE CUTAWAY)
+    function drawExtruderCrossSection() {
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2 + 10;
+      const r = 110;
+      const dist = r * 1.1;
+
+      // Draw Figure-8 Barrel Outer Body
+      ctx.fillStyle = '#1e293b';
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 12;
+
+      ctx.beginPath();
+      ctx.arc(cx - dist / 2, cy, r + 25, 0, Math.PI * 2);
+      ctx.arc(cx + dist / 2, cy, r + 25, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Barrel Inner Cavity
+      ctx.fillStyle = '#0b0f19';
+      ctx.beginPath();
+      ctx.arc(cx - dist / 2, cy, r, 0, Math.PI * 2);
+      ctx.arc(cx + dist / 2, cy, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Rotational angle
+      const angle = simState.time * (simState.rpm / 60) * Math.PI;
+
+      // Draw Co-Rotating Screws (Left & Right)
+      [-1, 1].forEach(dir => {
+        const sx = cx + dir * (dist / 2);
+
+        ctx.save();
+        ctx.translate(sx, cy);
+        ctx.rotate(angle); // Both rotate same direction (Co-rotating)
+
+        // Tri-lobe / Double flight profile
+        ctx.fillStyle = '#cbd5e1';
+        ctx.beginPath();
+        ctx.ellipse(0, 0, r * 0.95, r * 0.45, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.ellipse(0, 0, r * 0.45, r * 0.95, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Shaft Center Hole
+        ctx.fillStyle = '#475569';
+        ctx.beginPath();
+        ctx.arc(0, 0, 24, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      });
+
+      // Viscous Melt Shear Flow between screws
+      ctx.fillStyle = 'rgba(2, 132, 199, 0.4)';
+      ctx.beginPath();
+      ctx.arc(cx, cy, 30, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Shearing force arrows
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = '12px Inter';
+      ctx.fillText('HIGH SHEAR INTERMESHING NIP', cx - 90, cy + r + 50);
+    }
+
+    // 3. BANBURY INTERNAL MIXER (CROSS SECTION)
+    function drawBanbury() {
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2 + 20;
+
+      // Pneumatic Ram (Pushing down)
+      const ramDepth = Math.sin(simState.time * 2) * 15 + (simState.ram * 4);
+      ctx.fillStyle = '#475569';
+      ctx.fillRect(cx - 30, cy - 220, 60, 100 + ramDepth);
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillRect(cx - 50, cy - 120 + ramDepth, 100, 20); // Ram Head
+
+      // Mixer Chamber (Peanut / Double Chamber Cavity)
+      const r = 90;
+      const dist = 110;
+
+      ctx.fillStyle = '#1e293b';
+      ctx.beginPath();
+      ctx.arc(cx - dist / 2, cy, r + 20, 0, Math.PI * 2);
+      ctx.arc(cx + dist / 2, cy, r + 20, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#090d16';
+      ctx.beginPath();
+      ctx.arc(cx - dist / 2, cy, r, 0, Math.PI * 2);
+      ctx.arc(cx + dist / 2, cy, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Rotors (Counter-Rotating Tangential 2-Wing Rotors)
+      const angle = simState.time * (simState.rpm / 60) * Math.PI;
+
+      // Left Rotor (Clockwise)
+      ctx.save();
+      ctx.translate(cx - dist / 2, cy);
+      ctx.rotate(angle);
+      ctx.fillStyle = '#cbd5e1';
+      ctx.beginPath();
+      ctx.ellipse(0, 0, r * 0.85, 30, 0.4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // Right Rotor (Counter-Clockwise)
+      ctx.save();
+      ctx.translate(cx + dist / 2, cy);
+      ctx.rotate(-angle);
+      ctx.fillStyle = '#cbd5e1';
+      ctx.beginPath();
+      ctx.ellipse(0, 0, r * 0.85, 30, -0.4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // Rubber Batch Mass inside Chamber
+      ctx.fillStyle = 'rgba(234, 179, 8, 0.5)';
+      ctx.beginPath();
+      ctx.arc(cx, cy + 20, 60, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Drop Door at Bottom
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(cx - 40, cy + r + 10, 80, 15);
+      ctx.fillStyle = '#64748b';
+      ctx.font = '11px Inter';
+      ctx.fillText('DISCHARGE DROP DOOR', cx - 60, cy + r + 40);
+    }
+
+    // 4. TWO-ROLL OPEN MILL (CROSS SECTION)
+    function drawMill() {
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2 + 10;
+      const rollR = 100;
+      const gap = 16;
+
+      const leftX = cx - rollR - gap / 2;
+      const rightX = cx + rollR + gap / 2;
+
+      const angle = simState.time * (simState.rpm / 60) * Math.PI;
+
+      // Left Roll (Front Roll - Rotates Clockwise)
+      ctx.fillStyle = '#475569';
+      ctx.beginPath();
+      ctx.arc(leftX, cy, rollR, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Right Roll (Back Roll - Rotates Counter-Clockwise 1.25x faster)
+      ctx.fillStyle = '#334155';
+      ctx.beginPath();
+      ctx.arc(rightX, cy, rollR, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Rolling Rubber Bank on top of Nip Gap
+      ctx.fillStyle = '#eab308';
+      ctx.beginPath();
+      ctx.arc(cx, cy - gap - 25, 45, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Rubber Sheet Wrapping Front Roll
+      ctx.strokeStyle = '#0284c7';
+      ctx.lineWidth = 12;
+      ctx.beginPath();
+      ctx.arc(leftX, cy, rollR + 6, -Math.PI / 2, Math.PI / 2);
+      ctx.stroke();
+
+      // Roll Rotation Indicators
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = '12px Inter';
+      ctx.fillText('FRONT ROLL (1.0x)', leftX - 50, cy + rollR + 30);
+      ctx.fillText('BACK ROLL (1.25x)', rightX - 50, cy + rollR + 30);
+    }
+
+    // --- TELEMETRY CALCULATIONS & METERS UPDATE ---
+    function updateTelemetry() {
+      // Dynamic simulated parameters based on physics formulas
+      const pressure = (simState.feed * 0.04) + (simState.rpm * 0.02) + (simState.filler * 0.05);
+      const torque = Math.min(98, (simState.filler * 0.6) + (300 - simState.rpm) * 0.15 + (simState.rubberType === 'NR' ? 15 : 5));
+      const dispersion = Math.min(99.8, 80 + (simState.rpm * 0.05) + (simState.temp * 0.06));
+      const meltTemp = simState.temp + (simState.rpm * 0.12) + (simState.filler * 0.1);
+
+      document.getElementById('meterPressure').innerText = pressure.toFixed(1);
+      document.getElementById('barPressure').style.width = Math.min(100, pressure * 4) + '%';
+
+      document.getElementById('meterTorque').innerText = torque.toFixed(1);
+      document.getElementById('barTorque').style.width = torque + '%';
+
+      document.getElementById('meterDispersion').innerText = dispersion.toFixed(1);
+      document.getElementById('barDispersion').style.width = dispersion + '%';
+
+      document.getElementById('meterMeltTemp').innerText = Math.round(meltTemp);
+      document.getElementById('barMeltTemp').style.width = Math.min(100, (meltTemp / 220) * 100) + '%';
+    }
+
+    // --- MAIN ANIMATION LOOP ---
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (simState.running) {
+        simState.time += 0.016; // ~60fps step
+      }
+
+      // Render Active View
+      if (simState.view === 'extruder-long') drawExtruderLongitudinal();
+      else if (simState.view === 'extruder-cross') drawExtruderCrossSection();
+      else if (simState.view === 'banbury') drawBanbury();
+      else if (simState.view === 'mill') drawMill();
+
+      updateTelemetry();
+      requestAnimationFrame(animate);
+    }
+
+    // Start Simulation
+    animate();
+  </script>
+</body>
+</html>
